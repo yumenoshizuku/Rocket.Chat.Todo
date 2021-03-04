@@ -5,8 +5,6 @@ A command-line todo bot for Rocket.Chat
 
 Enable the App Framework and development mode in `Administration - General - Apps` on your Rocket.Chat instance.
 
-Change time zone in TodoApp.js
-
 Install rc-apps
 
 `npm install -g @rocket.chat/apps-cli`

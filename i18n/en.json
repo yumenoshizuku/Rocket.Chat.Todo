@@ -3,6 +3,8 @@
     "todoUsage": " some task, or /todo LISTALL, or /todo DELETE some task, or /todo DELETEALL",
     "notifyAtHoursLabel": "Notify to-do items at designated hours",
     "notifyAtHoursDescription": "Separate multiple hour triggers by comma",
+    "notificationTimeZoneLabel": "Time zone in which notification hour filter is evaluated",
+    "notificationTimeZoneDescription": "<a href=\"https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\">TZ database time zones</a>, e.g. America/New_York",
     "notifyIntervalLabel": "Time interval between notifying to-do items",
     "notifyIntervalDescription": "x seconds, or y minutes, or z hours. See <a href=\"https://github.com/agenda/human-interval\">schedule syntax</a>"
 }

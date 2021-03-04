@@ -41,8 +41,7 @@ export class ToDoCommand implements ISlashCommand {
         const sender = context.getSender().name;
         const tasks = await ToDoPersistence.findByRoom(read.getPersistenceReader(), room);
         if (!args?.length) {
-            await ToDoCommand.sendNotification(context, modify,
-                'Usage: /todo some task, or /todo LISTALL, or /todo DELETE some task, or /todo DELETEALL');
+            await ToDoCommand.sendNotification(context, modify, 'Usage: /todo some task, or /todo LISTALL, or /todo DELETE some task, or /todo DELETEALL');
         } else if (args[0] === 'DELETEALL') {
             const msg = sender + ' deleted all tasks: \n\n' + tasks.join('\n');
             await ToDoCommand.sendMessage(context, modify, msg);

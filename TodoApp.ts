@@ -11,12 +11,31 @@ import {ToDoPersistence} from './persistence/ToDoPersistence';
 
 export class TodoApp extends App {
 
-    private static getCurrentHour() {
+    private static getCurrentHour(notificationTimeZone: string): string {
         return String(new Date().toLocaleString('en-US', {
             hour: 'numeric',
             hour12: false,
-            timeZone: 'America/New_York',
+            timeZone: notificationTimeZone,
         })).replace(/^0/, '');
+    }
+
+    private static async getSettingValueOrDefault(environment: IEnvironmentRead, id: string): Promise<string> {
+        const setting = await environment.getSettings().getById(id);
+        if (setting.value) {
+            return setting.value;
+        } else {
+            return String(setting.packageValue);
+        }
+    }
+
+    private static async getSettingValArrayOrDefault(environment: IEnvironmentRead, id: string): Promise<Array<string>> {
+        const notifyAtHoursSetting = await environment.getSettings().getById(id);
+        const notifyAtHoursValue = notifyAtHoursSetting.value;
+        if (notifyAtHoursValue) {
+            return notifyAtHoursValue.split(',');
+        } else {
+            return String(notifyAtHoursSetting.packageValue).split(',');
+        }
     }
 
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
@@ -28,21 +47,16 @@ export class TodoApp extends App {
     }
 
     public async onSettingUpdated(setting: ISetting, configurationModify: IConfigurationModify, read: IRead, http: IHttp): Promise<void> {
-        const notifyIntervalValue = (await read.getEnvironmentReader().getSettings().getById('notifyInterval')).value;
         await configurationModify.scheduler.scheduleRecurring({
             id: 'notify',
-            interval: notifyIntervalValue,
+            interval: (await read.getEnvironmentReader().getSettings().getById('notifyInterval')).value,
         });
+        console.log('Current hour: ' + TodoApp.getCurrentHour(await TodoApp.getSettingValueOrDefault(read.getEnvironmentReader(), 'notificationTimeZone')));
     }
 
     public async notify(context: IJobContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
-        const notifyAtHoursSetting = await read.getEnvironmentReader().getSettings().getById('notifyAtHours');
-        let notifyAtHours = String(notifyAtHoursSetting.packageValue).split(',');
-        const notifyAtHoursValue = notifyAtHoursSetting.value;
-        if (notifyAtHoursValue) {
-            notifyAtHours = notifyAtHoursValue.split(',');
-        }
-        const hourNewYork = TodoApp.getCurrentHour();
+        const notifyAtHours = await TodoApp.getSettingValArrayOrDefault(read.getEnvironmentReader(), 'notifyAtHours');
+        const hourNewYork = TodoApp.getCurrentHour(await TodoApp.getSettingValueOrDefault(read.getEnvironmentReader(), 'notificationTimeZone'));
         if (notifyAtHours.includes(hourNewYork)) {
             const byRoomId = await ToDoPersistence.findRooms(read.getPersistenceReader());
             byRoomId.forEach(async (roomId) => {
@@ -79,6 +93,15 @@ export class TodoApp extends App {
             i18nDescription: 'notifyAtHoursDescription',
         });
         await configuration.settings.provideSetting({
+            id: 'notificationTimeZone',
+            public: true,
+            required: false,
+            type: SettingType.STRING,
+            packageValue: 'America/New_York',
+            i18nLabel: 'notificationTimeZoneLabel',
+            i18nDescription: 'notificationTimeZoneDescription',
+        });
+        await configuration.settings.provideSetting({
             id: 'notifyInterval',
             public: true,
             required: false,
@@ -87,23 +110,17 @@ export class TodoApp extends App {
             i18nLabel: 'notifyIntervalLabel',
             i18nDescription: 'notifyIntervalDescription',
         });
-        const notifyIntervalSetting = await environment.getSettings().getById('notifyInterval');
-        let notifyInterval = String(notifyIntervalSetting.packageValue);
-        const notifyIntervalValue = notifyIntervalSetting.value;
-        if (notifyIntervalValue) {
-            notifyInterval = notifyIntervalValue;
-        }
         await configuration.scheduler.registerProcessors([
             {
                 id: 'notify',
                 processor: this.notify,
                 startupSetting: {
                     type: StartupType.RECURRING,
-                    interval: notifyInterval,
+                    interval: await TodoApp.getSettingValueOrDefault(environment, 'notifyInterval'),
                 },
             },
         ]);
-        console.log('Current hour: ' + TodoApp.getCurrentHour());
+        console.log('Current hour: ' + TodoApp.getCurrentHour(await TodoApp.getSettingValueOrDefault(environment, 'notificationTimeZone')));
     }
 
 }
