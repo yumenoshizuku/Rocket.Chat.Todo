@@ -1,0 +1,29 @@
+{
+    "id": "f6b9fcf0-d4d5-4a6f-88f2-1466aebb133c",
+    "version": "0.0.1",
+    "requiredApiVersion": "^1.4.0",
+    "iconFile": "icon.png",
+    "author": {
+        "name": "yumenoshizuku",
+        "homepage": "https://github.com/yumenoshizuku/Rocket.Chat.Todo",
+        "support": ""
+    },
+    "name": "Todo",
+    "nameSlug": "todo",
+    "classFile": "TodoApp.ts",
+    "description": "A command-line todo bot for Rocket.Chat",
+    "permissions": [
+        {
+            "name":"message.write"
+        },
+        {
+            "name":"slashcommand"
+        },
+        {
+            "name":"persistence"
+        },
+        {
+            "name":"scheduler"
+        }
+    ]
+}

@@ -1,0 +1,4 @@
+{
+    "todoDescription": "Create and manage to-do tasks",
+    "todoUsage": " some task, or /todo LISTALL, or /todo DELETE some task, or /todo DELETEALL"
+}
