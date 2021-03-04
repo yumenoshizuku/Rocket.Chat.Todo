@@ -10,6 +10,15 @@ import {ToDoCommand} from './commands/ToDoCommand';
 import {ToDoPersistence} from './persistence/ToDoPersistence';
 
 export class TodoApp extends App {
+
+    private static getCurrentHour() {
+        return String(new Date().toLocaleString('en-US', {
+            hour: 'numeric',
+            hour12: false,
+            timeZone: 'America/New_York',
+        })).replace(/^0/, '');
+    }
+
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
     }
@@ -30,11 +39,10 @@ export class TodoApp extends App {
         const notifyAtHoursSetting = await read.getEnvironmentReader().getSettings().getById('notifyAtHours');
         let notifyAtHours = String(notifyAtHoursSetting.packageValue).split(',');
         const notifyAtHoursValue = notifyAtHoursSetting.value;
-        if (typeof notifyAtHoursValue === 'string') {
+        if (notifyAtHoursValue) {
             notifyAtHours = notifyAtHoursValue.split(',');
         }
-        const hourNewYork = String(new Date().toLocaleString('en-US', {hour: 'numeric',   hour12: false, timeZone: 'America/New_York' })).replace(/^0+/, '');
-        console.log('Current hour: ' + hourNewYork);
+        const hourNewYork = TodoApp.getCurrentHour();
         if (notifyAtHours.includes(hourNewYork)) {
             const byRoomId = await ToDoPersistence.findRooms(read.getPersistenceReader());
             byRoomId.forEach(async (roomId) => {
@@ -67,8 +75,8 @@ export class TodoApp extends App {
             required: false,
             type: SettingType.STRING,
             packageValue: '10,16',
-            i18nLabel: 'Notify to-do items at designated hours',
-            i18nDescription: 'Separate multiple hour triggers by comma',
+            i18nLabel: 'notifyAtHoursLabel',
+            i18nDescription: 'notifyAtHoursDescription',
         });
         await configuration.settings.provideSetting({
             id: 'notifyInterval',
@@ -76,13 +84,13 @@ export class TodoApp extends App {
             required: false,
             type: SettingType.STRING,
             packageValue: '1 hour',
-            i18nLabel: 'Time interval between notifying to-do items',
-            i18nDescription: 'x seconds, or y minutes, or z hours',
+            i18nLabel: 'notifyIntervalLabel',
+            i18nDescription: 'notifyIntervalDescription',
         });
         const notifyIntervalSetting = await environment.getSettings().getById('notifyInterval');
         let notifyInterval = String(notifyIntervalSetting.packageValue);
         const notifyIntervalValue = notifyIntervalSetting.value;
-        if (typeof notifyIntervalValue === 'string') {
+        if (notifyIntervalValue) {
             notifyInterval = notifyIntervalValue;
         }
         await configuration.scheduler.registerProcessors([
@@ -95,6 +103,7 @@ export class TodoApp extends App {
                 },
             },
         ]);
+        console.log('Current hour: ' + TodoApp.getCurrentHour());
     }
 
 }

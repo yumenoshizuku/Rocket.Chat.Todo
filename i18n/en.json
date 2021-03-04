@@ -1,4 +1,8 @@
 {
     "todoDescription": "Create and manage to-do tasks",
-    "todoUsage": " some task, or /todo LISTALL, or /todo DELETE some task, or /todo DELETEALL"
+    "todoUsage": " some task, or /todo LISTALL, or /todo DELETE some task, or /todo DELETEALL",
+    "notifyAtHoursLabel": "Notify to-do items at designated hours",
+    "notifyAtHoursDescription": "Separate multiple hour triggers by comma",
+    "notifyIntervalLabel": "Time interval between notifying to-do items",
+    "notifyIntervalDescription": "x seconds, or y minutes, or z hours. See <a href=\"https://github.com/agenda/human-interval\">schedule syntax</a>"
 }
