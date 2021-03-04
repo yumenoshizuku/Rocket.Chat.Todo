@@ -29,12 +29,12 @@ export class TodoApp extends App {
     }
 
     private static async getSettingValArrayOrDefault(environment: IEnvironmentRead, id: string): Promise<Array<string>> {
-        const notifyAtHoursSetting = await environment.getSettings().getById(id);
-        const notifyAtHoursValue = notifyAtHoursSetting.value;
-        if (notifyAtHoursValue) {
-            return notifyAtHoursValue.split(',');
+        const setting = await environment.getSettings().getById(id);
+        const value = setting.value;
+        if (value) {
+            return value.split(',');
         } else {
-            return String(notifyAtHoursSetting.packageValue).split(',');
+            return String(setting.packageValue).split(',');
         }
     }
 
@@ -67,7 +67,7 @@ export class TodoApp extends App {
                 } else {
                     const todos = await ToDoPersistence.findByRoom(read.getPersistenceReader(), room);
                     if (todos?.length) {
-                        const text = 'Reminder:\n\n' + (todos).join('\n');
+                        const text = 'Reminder:\n\n' + todos.join('\n');
                         message
                             .setRoom(room)
                             .setGroupable(false)
